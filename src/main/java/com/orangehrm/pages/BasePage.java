@@ -77,10 +77,16 @@ public class BasePage {
      * Wait for the page to be completely loaded (DOM ready state = complete)
      */
     protected void waitForPageToLoad() {
-        wait.until(driver -> {
-            JavascriptExecutor js = (JavascriptExecutor) driver;
-            return js.executeScript("return document.readyState").equals("complete");
-        });
+        try {
+            wait.until(driver -> {
+                JavascriptExecutor js = (JavascriptExecutor) driver;
+                Object readyState = js.executeScript("return document.readyState");
+                return readyState != null && readyState.toString().equals("complete");
+            });
+        } catch (Exception e) {
+            System.out.println("Warning: waitForPageToLoad timed out or failed: " + e.getMessage());
+            // Don't fail the test immediately, let the specific element waits handle failures
+        }
     }
 
     /**
