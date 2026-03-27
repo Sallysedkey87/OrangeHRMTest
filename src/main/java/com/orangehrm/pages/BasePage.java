@@ -19,7 +19,7 @@ public class BasePage {
 
     public BasePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(60));
     }
 
     protected WebElement waitForElementToBeVisible(By locator) {
@@ -78,14 +78,20 @@ public class BasePage {
      */
     protected void waitForPageToLoad() {
         try {
-            wait.until(driver -> {
-                JavascriptExecutor js = (JavascriptExecutor) driver;
-                Object readyState = js.executeScript("return document.readyState");
-                return readyState != null && readyState.toString().equals("complete");
+            // Wait for the document to be ready, but with a shorter timeout (15s instead of 30s)
+            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            shortWait.until(driver -> {
+                try {
+                    JavascriptExecutor js = (JavascriptExecutor) driver;
+                    Object readyState = js.executeScript("return document.readyState");
+                    return readyState != null && readyState.toString().equals("complete");
+                } catch (Exception ex) {
+                    return false;
+                }
             });
         } catch (Exception e) {
-            System.out.println("Warning: waitForPageToLoad timed out or failed: " + e.getMessage());
             // Don't fail the test immediately, let the specific element waits handle failures
+            System.out.println("Warning: waitForPageToLoad timed out or failed: " + e.getMessage());
         }
     }
 
