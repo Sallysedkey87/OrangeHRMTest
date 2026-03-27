@@ -107,14 +107,20 @@ public class BaseTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(ConfigReader.getImplicitWait()));
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(ConfigReader.getPageLoadTimeout()));
 
-        // Maximize window if not headless
-        if (!headless) {
-            driver.manage().window().maximize();
-        }
+                // Maximize window if not headless
+                if (!headless) {
+                    driver.manage().window().maximize();
+                }
 
-        // Navigate to application URL
-        driver.get(ConfigReader.getAppUrl());
-    }
+                // Navigate to application URL
+                try {
+                    driver.get(ConfigReader.getAppUrl());
+                } catch (Exception e) {
+                    System.out.println("Warning: Initial navigation failed or timed out: " + e.getMessage());
+                    // Try one more time
+                    driver.get(ConfigReader.getAppUrl());
+                }
+            }
 
     @AfterMethod
     public void teardown(ITestResult result) {
