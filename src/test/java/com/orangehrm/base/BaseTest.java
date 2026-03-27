@@ -44,6 +44,7 @@ public class BaseTest {
                     chromeOptions.addArguments("--disable-gpu");
                     chromeOptions.addArguments("--no-sandbox");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
+                    chromeOptions.addArguments("--disable-software-rasterizer");
                     // In headless mode, EAGER strategy prevents timeouts waiting for external resources
                     chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.EAGER);
                 } else {
@@ -73,6 +74,7 @@ public class BaseTest {
                 chromeOptions.addArguments("--disable-web-security");
                 chromeOptions.addArguments("--allow-insecure-localhost");
                 chromeOptions.addArguments("--ignore-certificate-errors");
+                chromeOptions.addArguments("--disable-features=NetworkService");
 
                 // Increase timeout for renderer
                 chromeOptions.addArguments("--timeout=60000");
