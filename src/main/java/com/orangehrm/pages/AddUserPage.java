@@ -23,10 +23,10 @@ public class AddUserPage extends BasePage {
     private By cancelButton = By.xpath("//button[normalize-space()='Cancel']");
     
     // Error messages
-    private By usernameError = By.xpath("//label[text()='Username']/../following-sibling::div//span[contains(@class, 'oxd-input-field-error-message')]");
-    private By passwordError = By.xpath("//label[text()='Password']/../following-sibling::div//span[contains(@class, 'oxd-input-field-error-message')]");
-    private By confirmPasswordError = By.xpath("//label[text()='Confirm Password']/../following-sibling::div//span[contains(@class, 'oxd-input-field-error-message')]");
-    private By employeeNameError = By.xpath("//label[text()='Employee Name']/../following-sibling::div//span[contains(@class, 'oxd-input-field-error-message')]");
+    private By usernameError = By.xpath("//label[text()='Username']/ancestor::div[contains(@class, 'oxd-input-group')]//span[contains(@class, 'oxd-input-field-error-message')]");
+    private By passwordError = By.xpath("//label[text()='Password']/ancestor::div[contains(@class, 'oxd-input-group')]//span[contains(@class, 'oxd-input-field-error-message')]");
+    private By confirmPasswordError = By.xpath("//label[text()='Confirm Password']/ancestor::div[contains(@class, 'oxd-input-group')]//span[contains(@class, 'oxd-input-field-error-message')]");
+    private By employeeNameError = By.xpath("//label[text()='Employee Name']/ancestor::div[contains(@class, 'oxd-input-group')]//span[contains(@class, 'oxd-input-field-error-message')]");
 
     public AddUserPage(WebDriver driver) {
         super(driver);
@@ -85,14 +85,20 @@ public class AddUserPage extends BasePage {
     }
     
     public String getPasswordError() {
+        // Wait briefly for validation to trigger
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
         return getText(passwordError);
     }
     
     public String getConfirmPasswordError() {
+        // Wait briefly for validation to trigger
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
         return getText(confirmPasswordError);
     }
     
     public String getEmployeeNameError() {
+        // Wait briefly for validation to trigger
+        try { Thread.sleep(1000); } catch (InterruptedException e) {}
         return getText(employeeNameError);
     }
     

@@ -42,10 +42,11 @@ jobs:
           path: target/surefire-reports
 
       - name: Upload Extent report and screenshots
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-artifacts
           path: |
-            test-output
-            screenshots
+            test-output/
+            screenshots/
+          if-no-files-found: ignore
