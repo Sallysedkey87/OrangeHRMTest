@@ -1,0 +1,31 @@
+# Ignore build outputs
+target/
+build/
+
+# Ignore IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore test outputs
+test-output/
+screenshots/
+*.log
+
+# Ignore Maven wrapper
+.mvn/
+mvnw
+mvnw.cmd
+
+# Ignore reports
+ExtentReport.html
+extent-reports/
+allure-results/
+allure-report/
