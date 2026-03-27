@@ -36,6 +36,13 @@ public class ConfigReader {
     }
 
     public static boolean isHeadless() {
+        String headlessEnv = System.getenv("HEADLESS");
+        if (headlessEnv != null && !headlessEnv.isBlank()) {
+            return Boolean.parseBoolean(headlessEnv);
+        }
+        if ("true".equalsIgnoreCase(System.getenv("CI"))) {
+            return true;
+        }
         return Boolean.parseBoolean(properties.getProperty("headless"));
     }
 

@@ -4,6 +4,7 @@
     <test name="Login Tests" preserve-order="true">
         <classes>
             <class name="com.orangehrm.tests.LoginTest"/>
+            <class name="com.orangehrm.tests.AdminAddUserTest"/>
         </classes>
     </test>
 </suite>

@@ -41,7 +41,16 @@ public class BaseTest {
                 ChromeOptions chromeOptions = new ChromeOptions();
                 if (headless) {
                     chromeOptions.addArguments("--headless=new");
+                    chromeOptions.addArguments("--disable-gpu");
+                    chromeOptions.addArguments("--no-sandbox");
+                    chromeOptions.addArguments("--disable-dev-shm-usage");
+                    // In headless mode, EAGER strategy prevents timeouts waiting for external resources
+                    chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.EAGER);
+                } else {
+                    // Set page load strategy to reduce timeout
+                    chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
                 }
+
                 // Window and display settings
                 chromeOptions.addArguments("--start-maximized");
                 chromeOptions.addArguments("--window-size=1920,1080");
@@ -64,9 +73,6 @@ public class BaseTest {
                 chromeOptions.addArguments("--disable-web-security");
                 chromeOptions.addArguments("--allow-insecure-localhost");
                 chromeOptions.addArguments("--ignore-certificate-errors");
-
-                // Set page load strategy to reduce timeout
-                chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
 
                 // Increase timeout for renderer
                 chromeOptions.addArguments("--timeout=60000");
