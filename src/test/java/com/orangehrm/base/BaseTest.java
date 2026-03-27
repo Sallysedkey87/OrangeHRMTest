@@ -45,16 +45,15 @@ public class BaseTest {
                     chromeOptions.addArguments("--no-sandbox");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
                     chromeOptions.addArguments("--disable-software-rasterizer");
+                    chromeOptions.addArguments("--window-size=1920,1080");
                     // In headless mode, EAGER strategy prevents timeouts waiting for external resources
                     chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.EAGER);
                 } else {
                     // Set page load strategy to reduce timeout
                     chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
+                    chromeOptions.addArguments("--start-maximized");
+                    chromeOptions.addArguments("--window-size=1920,1080");
                 }
-
-                // Window and display settings
-                chromeOptions.addArguments("--start-maximized");
-                chromeOptions.addArguments("--window-size=1920,1080");
 
                 // Stability and performance settings
                 chromeOptions.addArguments("--disable-notifications");
