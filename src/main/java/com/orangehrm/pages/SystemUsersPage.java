@@ -23,7 +23,11 @@ public class SystemUsersPage extends BasePage {
     }
 
     public boolean isSystemUsersPageDisplayed() {
-        return isElementDisplayed(systemUsersHeader);
+        try {
+            return waitForElementToBeVisible(systemUsersHeader).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void clickAddButton() {
@@ -32,7 +36,11 @@ public class SystemUsersPage extends BasePage {
     }
 
     public boolean isSuccessToastDisplayed() {
-        return isElementDisplayed(successToast);
+        try {
+            return waitForElementToBeVisible(successToast).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     public String getSuccessToastMessage() {
