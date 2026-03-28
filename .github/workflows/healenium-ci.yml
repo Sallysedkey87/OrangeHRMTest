@@ -44,4 +44,5 @@ jobs:
           path: |
             target/surefire-reports/
             target/hlm-report/
+            test-output/
           if-no-files-found: warn
