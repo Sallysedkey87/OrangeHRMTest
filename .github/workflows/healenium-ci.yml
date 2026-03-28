@@ -43,9 +43,8 @@ jobs:
           name: qa-test-reports
           path: |
             target/surefire-reports/
-            target/hlm-report/
-            test-output/
-            screenshots/
+            reports/
+            test-screenshots/
           if-no-files-found: warn
 
       - name: Send Email with Reports
@@ -66,4 +65,4 @@ jobs:
             Please find the Extent Report and Healenium Report attached.
             
             Workflow Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          attachments: test-output/ExtentReport.html,target/hlm-report/build/index.html
+          attachments: reports/ExtentReport.html,reports/healenium/build/index.html
