@@ -53,7 +53,11 @@ public class LoginPage extends BasePage {
     }
 
     public boolean isErrorMessageDisplayed() {
-        return isElementDisplayed(errorMessage);
+        try {
+            return waitForElementToBeVisible(errorMessage).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public String getErrorMessage() {
@@ -85,7 +89,7 @@ public class LoginPage extends BasePage {
     }
 
     public boolean isLoginPageDisplayed() {
-        return isElementDisplayed(loginPanel);
+        return isElementDisplayed(usernameField) && isElementDisplayed(passwordField);
     }
 
     public boolean isForgotPasswordLinkDisplayed() {

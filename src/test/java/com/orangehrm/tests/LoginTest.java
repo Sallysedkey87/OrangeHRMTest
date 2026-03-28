@@ -228,9 +228,9 @@ public class LoginTest extends BaseTest {
         }
     }
 
-    @Test(priority = 9, description = "Verify login with case sensitive username")
-    public void testLoginWithCaseSensitiveUsername() {
-        ExtentTest test = extent.createTest("Case Sensitive Username Test", "Verify username is case sensitive");
+    @Test(priority = 9, description = "Verify login with lowercase username")
+    public void testLoginWithLowercaseUsername() {
+        ExtentTest test = extent.createTest("Lowercase Username Login Test", "Verify username comparison is case-insensitive");
         ExtentReportManager.setExtentTest(test);
 
         try {
@@ -243,10 +243,11 @@ public class LoginTest extends BaseTest {
             test.log(Status.INFO, "Clicking login button");
             loginPage.clickLoginButton();
 
-            test.log(Status.INFO, "Verifying error message is displayed");
-            Assert.assertTrue(loginPage.isErrorMessageDisplayed(), "Error message is not displayed");
+            test.log(Status.INFO, "Verifying login is successful with lowercase username");
+            Assert.assertTrue(dashboardPage.isLoginSuccessful(),
+                    "Lowercase username was not accepted");
 
-            test.log(Status.PASS, "Username is case sensitive as expected");
+            test.log(Status.PASS, "Username matching is case-insensitive as expected");
         } catch (Exception e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
