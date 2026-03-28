@@ -47,3 +47,23 @@ jobs:
             test-output/
             screenshots/
           if-no-files-found: warn
+
+      - name: Send Email with Reports
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: GitHub Actions - Test Execution Report
+          to: sallysedkey.fci87@gmail.com
+          from: GitHub Actions
+          body: |
+            The test execution has completed.
+            
+            Please find the Extent Report and Healenium Report attached.
+            
+            Workflow Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          attachments: test-output/ExtentReport.html,target/hlm-report/index.html
