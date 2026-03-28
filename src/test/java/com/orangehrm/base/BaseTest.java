@@ -70,7 +70,6 @@ public class BaseTest {
                 break;
 
             case "edge":
-                WebDriverManager.edgedriver().setup();
                 EdgeOptions edgeOptions = new EdgeOptions();
                 if (headless) {
                     edgeOptions.addArguments("--headless=new");
@@ -79,7 +78,14 @@ public class BaseTest {
                     edgeOptions.addArguments("--window-size=1920,1080");
                 }
                 edgeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
-                driver = new EdgeDriver(edgeOptions);
+                try {
+                    // Prefer local/runner-provided driver first (avoids network dependency in CI)
+                    driver = new EdgeDriver(edgeOptions);
+                } catch (Exception e) {
+                    // Fallback for local machines where driver is not preinstalled
+                    WebDriverManager.edgedriver().setup();
+                    driver = new EdgeDriver(edgeOptions);
+                }
                 break;
 
             default:
