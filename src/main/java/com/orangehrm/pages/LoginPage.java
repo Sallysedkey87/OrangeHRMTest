@@ -21,12 +21,16 @@ public class LoginPage extends BasePage {
     private By passwordRequiredError = By.xpath("(//span[@class='oxd-text oxd-text--span oxd-input-field-error-message oxd-input-group__message'])[2]");
 
     // Constructor
+    // Constructor
     public LoginPage(WebDriver driver) {
         super(driver);
-        // Wait for page to be fully loaded
-        waitForPageToLoad();
-        // Wait for login panel to be visible (confirms page is ready)
-        waitForElementToBeVisible(loginPanel);
+        // Wait for username input instead of full document readiness
+        // because third-party resources can delay readyState in CI/headless.
+        try {
+            waitForElementToBeVisible(usernameField);
+        } catch (Exception e) {
+            System.out.println("Warning: Login panel not immediately visible: " + e.getMessage());
+        }
     }
 
     // Page Actions
@@ -49,7 +53,11 @@ public class LoginPage extends BasePage {
     }
 
     public boolean isErrorMessageDisplayed() {
-        return isElementDisplayed(errorMessage);
+        try {
+            return waitForElementToBeVisible(errorMessage).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public String getErrorMessage() {
@@ -81,7 +89,7 @@ public class LoginPage extends BasePage {
     }
 
     public boolean isLoginPageDisplayed() {
-        return isElementDisplayed(loginPanel);
+        return isElementDisplayed(usernameField) && isElementDisplayed(passwordField);
     }
 
     public boolean isForgotPasswordLinkDisplayed() {

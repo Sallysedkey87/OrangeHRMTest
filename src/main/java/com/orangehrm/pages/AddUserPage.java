@@ -44,6 +44,8 @@ public class AddUserPage extends BasePage {
 
     public void enterEmployeeName(String employeeName) {
         type(employeeNameInput, employeeName);
+        // Wait for the API to fetch results and the "Searching..." text to disappear
+        try { Thread.sleep(3000); } catch (InterruptedException e) {}
         waitForElementToBeVisible(employeeNameDropdownOption);
         click(employeeNameDropdownOption); // Selects the first matching option
     }

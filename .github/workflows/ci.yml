@@ -14,6 +14,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, edge]
 
     steps:
       - name: Checkout
@@ -27,26 +31,40 @@ jobs:
           cache: maven
 
       - name: Set up Chrome
+        if: matrix.browser == 'chrome'
         uses: browser-actions/setup-chrome@v1
+
+      - name: Set up Edge
+        if: matrix.browser == 'edge'
+        uses: browser-actions/setup-edge@v1
 
       - name: Run tests
         env:
           CI: "true"
-        run: mvn -B test
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          mkdir -p test-output screenshots
+          mvn -B test
 
       - name: Upload Surefire reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports
+          name: surefire-reports-${{ matrix.browser }}
           path: target/surefire-reports
 
-      - name: Upload Extent report and screenshots
+      - name: Upload Extent report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-artifacts
-          path: |
-            test-output/
-            screenshots/
+          name: extent-report-${{ matrix.browser }}
+          path: test-output/ExtentReport.html
+          if-no-files-found: ignore
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ matrix.browser }}
+          path: screenshots/**/*.png
           if-no-files-found: ignore

@@ -41,41 +41,21 @@ public class BaseTest {
                 ChromeOptions chromeOptions = new ChromeOptions();
                 if (headless) {
                     chromeOptions.addArguments("--headless=new");
-                    chromeOptions.addArguments("--disable-gpu");
                     chromeOptions.addArguments("--no-sandbox");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
-                    // In headless mode, EAGER strategy prevents timeouts waiting for external resources
-                    chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.EAGER);
+                    chromeOptions.addArguments("--window-size=1920,1080");
+                    // Keep headless config minimal to avoid Chromium crashes
+                    chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
                 } else {
                     // Set page load strategy to reduce timeout
                     chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
+                    chromeOptions.addArguments("--start-maximized");
+                    chromeOptions.addArguments("--window-size=1920,1080");
                 }
-
-                // Window and display settings
-                chromeOptions.addArguments("--start-maximized");
-                chromeOptions.addArguments("--window-size=1920,1080");
 
                 // Stability and performance settings
                 chromeOptions.addArguments("--disable-notifications");
-                chromeOptions.addArguments("--disable-dev-shm-usage");
-                chromeOptions.addArguments("--no-sandbox");
-                chromeOptions.addArguments("--disable-gpu");
                 chromeOptions.addArguments("--remote-allow-origins=*");
-
-                // Fix renderer timeout issues
-                chromeOptions.addArguments("--disable-extensions");
-                chromeOptions.addArguments("--disable-popup-blocking");
-                chromeOptions.addArguments("--disable-infobars");
-                chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
-                chromeOptions.addArguments("--disable-browser-side-navigation");
-
-                // Performance improvements
-                chromeOptions.addArguments("--disable-web-security");
-                chromeOptions.addArguments("--allow-insecure-localhost");
-                chromeOptions.addArguments("--ignore-certificate-errors");
-
-                // Increase timeout for renderer
-                chromeOptions.addArguments("--timeout=60000");
 
                 driver = new ChromeDriver(chromeOptions);
                 break;
@@ -90,12 +70,22 @@ public class BaseTest {
                 break;
 
             case "edge":
-                WebDriverManager.edgedriver().setup();
                 EdgeOptions edgeOptions = new EdgeOptions();
                 if (headless) {
-                    edgeOptions.addArguments("--headless");
+                    edgeOptions.addArguments("--headless=new");
+                    edgeOptions.addArguments("--no-sandbox");
+                    edgeOptions.addArguments("--disable-dev-shm-usage");
+                    edgeOptions.addArguments("--window-size=1920,1080");
                 }
-                driver = new EdgeDriver(edgeOptions);
+                edgeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
+                try {
+                    // Prefer local/runner-provided driver first (avoids network dependency in CI)
+                    driver = new EdgeDriver(edgeOptions);
+                } catch (Exception e) {
+                    // Fallback for local machines where driver is not preinstalled
+                    WebDriverManager.edgedriver().setup();
+                    driver = new EdgeDriver(edgeOptions);
+                }
                 break;
 
             default:
@@ -112,27 +102,39 @@ public class BaseTest {
         }
 
         // Navigate to application URL
-        driver.get(ConfigReader.getAppUrl());
+        try {
+            driver.get(ConfigReader.getAppUrl());
+        } catch (Exception e) {
+            System.out.println("Warning: Initial navigation failed or timed out: " + e.getMessage());
+        }
     }
 
     @AfterMethod
     public void teardown(ITestResult result) {
         // Capture screenshot on failure
         if (result.getStatus() == ITestResult.FAILURE && ConfigReader.isScreenshotOnFailure()) {
-            String screenshotPath = ScreenshotUtil.captureScreenshot(driver, result.getName());
-            if (screenshotPath != null && ExtentReportManager.getExtentTest() != null) {
-                try {
-                    ExtentReportManager.getExtentTest().fail("Screenshot on failure")
-                        .addScreenCaptureFromPath(screenshotPath);
-                } catch (Exception e) {
-                    System.out.println("Failed to attach screenshot to report: " + e.getMessage());
+            try {
+                String screenshotPath = ScreenshotUtil.captureScreenshot(driver, result.getName());
+                if (screenshotPath != null && ExtentReportManager.getExtentTest() != null) {
+                    try {
+                        ExtentReportManager.getExtentTest().fail("Screenshot on failure")
+                            .addScreenCaptureFromPath(screenshotPath);
+                    } catch (Exception e) {
+                        System.out.println("Failed to attach screenshot to report: " + e.getMessage());
+                    }
                 }
+            } catch (Exception e) {
+                System.out.println("Failed to capture screenshot (window may be closed): " + e.getMessage());
             }
         }
 
         // Close browser
         if (driver != null) {
-            driver.quit();
+            try {
+                driver.quit();
+            } catch (Exception e) {
+                System.out.println("Failed to quit driver cleanly: " + e.getMessage());
+            }
         }
     }
 
