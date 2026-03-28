@@ -1,0 +1,47 @@
+name: Healenium Self-Healing CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-heal:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Start Healenium Backend (Docker)
+        run: |
+          cd healenium-2.1.10
+          docker compose up -d
+          # Wait for Postgres and Backend to be healthy
+          sleep 30 
+
+      - name: Run Selenium Tests
+        # Adding 'continue-on-error' so the report generates even if tests fail
+        continue-on-error: true 
+        run: mvn clean test
+
+      - name: Generate Healenium Report
+        # This triggers the plugin we added to the pom.xml
+        run: mvn com.epam.healenium:hlm-report-mvn:1.1:initReport com.epam.healenium:hlm-report-mvn:1.1:buildReport
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-test-reports
+          path: |
+            target/surefire-reports/
+            target/hlm-report/
+          if-no-files-found: warn
