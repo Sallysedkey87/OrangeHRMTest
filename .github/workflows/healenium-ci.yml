@@ -66,4 +66,4 @@ jobs:
             Please find the Extent Report and Healenium Report attached.
             
             Workflow Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          attachments: test-output/ExtentReport.html,target/hlm-report/index.html
+          attachments: test-output/ExtentReport.html,target/hlm-report/build/index.html
