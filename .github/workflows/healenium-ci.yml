@@ -55,7 +55,7 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 465
           secure: true
-          username: ${{ secrets.MAIL_USERNAME }}
+          username: ${{ secrets.MAIL_SALLYSEDKY }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: GitHub Actions - Test Execution Report
           to: sallysedkey.fci87@gmail.com
