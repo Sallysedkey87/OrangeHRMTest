@@ -37,6 +37,13 @@ jobs:
         # This triggers the plugin we added to the pom.xml
         run: mvn com.epam.healenium:hlm-report-mvn:1.1:initReport com.epam.healenium:hlm-report-mvn:1.1:buildReport
 
+      - name: Verify Reports Exist
+        run: |
+          echo "Checking for report files..."
+          find . -name "ExtentReport.html" -o -name "index.html" 2>/dev/null | head -20
+          ls -la target/surefire-reports/ 2>/dev/null || echo "No surefire reports"
+          ls -la reports/ 2>/dev/null || echo "No reports folder"
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -46,6 +53,7 @@ jobs:
             reports/
             test-screenshots/
           if-no-files-found: warn
+          retention-days: 30
 
       - name: Zip Healenium Report
         if: always()
