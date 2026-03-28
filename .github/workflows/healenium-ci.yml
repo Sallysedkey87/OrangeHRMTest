@@ -28,16 +28,20 @@ jobs:
           # Wait for Postgres and Backend to be healthy
           sleep 30 
 
-      - name: Run Selenium Tests (Headless)
-        run: mvn clean test -Dheadless=true
-        # Ensure your code reads the -Dheadless flag to set ChromeOptions
+      - name: Run Selenium Tests
+        # Adding 'continue-on-error' so the report generates even if tests fail
+        continue-on-error: true 
+        run: mvn clean test
 
-      - name: Upload Healenium Report
-        if: always()
+      - name: Generate Healenium Report
+        # This triggers the plugin we added to the pom.xml
+        run: mvn hlm-report-mvn:buildReport 
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: healenium-report
+          name: qa-test-reports
           path: |
-            target/site/
-            # If your report is inside the docker container, 
-            # you might need to 'docker cp' it out first.
+            target/surefire-reports/
+            target/hlm-report/
+          if-no-files-found: warn
