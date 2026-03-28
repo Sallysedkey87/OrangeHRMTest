@@ -37,6 +37,13 @@ jobs:
         # This triggers the plugin we added to the pom.xml
         run: mvn com.epam.healenium:hlm-report-mvn:1.1:initReport com.epam.healenium:hlm-report-mvn:1.1:buildReport
 
+      - name: Verify Reports Exist
+        run: |
+          echo "Checking for report files..."
+          find . -name "ExtentReport.html" -o -name "index.html" 2>/dev/null | head -20
+          ls -la target/surefire-reports/ 2>/dev/null || echo "No surefire reports"
+          ls -la reports/ 2>/dev/null || echo "No reports folder"
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -46,7 +53,27 @@ jobs:
             reports/
             test-screenshots/
           if-no-files-found: warn
+          retention-days: 30
 
+      - name: Publish Report to Summary
+        if: always()
+        run: |
+          echo "## 📊 Test Reports" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "reports/ExtentReport.html" ]; then
+            echo "✅ Extent Report Generated" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "reports/healenium/build/index.html" ]; then
+            echo "✅ Healenium Report Generated" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**View full reports in the Artifacts section above**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Workflow Run: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+      
       - name: Send Email with Reports
         if: always()
         uses: dawidd6/action-send-mail@v3
@@ -60,9 +87,18 @@ jobs:
           to: sallysedkey.fci87@gmail.com
           from: GitHub Actions
           body: |
-            The test execution has completed.
+            Test execution completed with status: ${{ job.status }}
             
-            Please find the Extent Report and Healenium Report attached.
+            🎯 Build Summary:
+            - Repository: ${{ github.repository }}
+            - Branch: ${{ github.ref }}
+            - Commit: ${{ github.sha }}
             
-            Workflow Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            📊 Reports are attached to this email:
+            - Extent Report (ExtentReport.html)
+            - Healenium Report (index.html)
+            - Surefire Test Results
+            
+            📦 All artifacts are also available in the GitHub Actions run.
+            View Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           attachments: reports/ExtentReport.html,reports/healenium/build/index.html
