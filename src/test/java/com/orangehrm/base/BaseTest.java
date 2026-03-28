@@ -41,13 +41,11 @@ public class BaseTest {
                 ChromeOptions chromeOptions = new ChromeOptions();
                 if (headless) {
                     chromeOptions.addArguments("--headless=new");
-                    chromeOptions.addArguments("--disable-gpu");
                     chromeOptions.addArguments("--no-sandbox");
                     chromeOptions.addArguments("--disable-dev-shm-usage");
-                    chromeOptions.addArguments("--disable-software-rasterizer");
                     chromeOptions.addArguments("--window-size=1920,1080");
-                    // In headless mode, EAGER strategy prevents timeouts waiting for external resources
-                    chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.EAGER);
+                    // Keep headless config minimal to avoid Chromium crashes
+                    chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
                 } else {
                     // Set page load strategy to reduce timeout
                     chromeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
@@ -57,26 +55,7 @@ public class BaseTest {
 
                 // Stability and performance settings
                 chromeOptions.addArguments("--disable-notifications");
-                chromeOptions.addArguments("--disable-dev-shm-usage");
-                chromeOptions.addArguments("--no-sandbox");
-                chromeOptions.addArguments("--disable-gpu");
                 chromeOptions.addArguments("--remote-allow-origins=*");
-
-                // Fix renderer timeout issues
-                chromeOptions.addArguments("--disable-extensions");
-                chromeOptions.addArguments("--disable-popup-blocking");
-                chromeOptions.addArguments("--disable-infobars");
-                chromeOptions.addArguments("--disable-blink-features=AutomationControlled");
-                chromeOptions.addArguments("--disable-browser-side-navigation");
-
-                // Performance improvements
-                chromeOptions.addArguments("--disable-web-security");
-                chromeOptions.addArguments("--allow-insecure-localhost");
-                chromeOptions.addArguments("--ignore-certificate-errors");
-                chromeOptions.addArguments("--disable-features=NetworkService");
-
-                // Increase timeout for renderer
-                chromeOptions.addArguments("--timeout=60000");
 
                 driver = new ChromeDriver(chromeOptions);
                 break;
@@ -94,8 +73,12 @@ public class BaseTest {
                 WebDriverManager.edgedriver().setup();
                 EdgeOptions edgeOptions = new EdgeOptions();
                 if (headless) {
-                    edgeOptions.addArguments("--headless");
+                    edgeOptions.addArguments("--headless=new");
+                    edgeOptions.addArguments("--no-sandbox");
+                    edgeOptions.addArguments("--disable-dev-shm-usage");
+                    edgeOptions.addArguments("--window-size=1920,1080");
                 }
+                edgeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
                 driver = new EdgeDriver(edgeOptions);
                 break;
 
@@ -107,39 +90,45 @@ public class BaseTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(ConfigReader.getImplicitWait()));
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(ConfigReader.getPageLoadTimeout()));
 
-                // Maximize window if not headless
-                if (!headless) {
-                    driver.manage().window().maximize();
-                }
+        // Maximize window if not headless
+        if (!headless) {
+            driver.manage().window().maximize();
+        }
 
-                // Navigate to application URL
-                try {
-                    driver.get(ConfigReader.getAppUrl());
-                } catch (Exception e) {
-                    System.out.println("Warning: Initial navigation failed or timed out: " + e.getMessage());
-                    // Try one more time
-                    driver.get(ConfigReader.getAppUrl());
-                }
-            }
+        // Navigate to application URL
+        try {
+            driver.get(ConfigReader.getAppUrl());
+        } catch (Exception e) {
+            System.out.println("Warning: Initial navigation failed or timed out: " + e.getMessage());
+        }
+    }
 
     @AfterMethod
     public void teardown(ITestResult result) {
         // Capture screenshot on failure
         if (result.getStatus() == ITestResult.FAILURE && ConfigReader.isScreenshotOnFailure()) {
-            String screenshotPath = ScreenshotUtil.captureScreenshot(driver, result.getName());
-            if (screenshotPath != null && ExtentReportManager.getExtentTest() != null) {
-                try {
-                    ExtentReportManager.getExtentTest().fail("Screenshot on failure")
-                        .addScreenCaptureFromPath(screenshotPath);
-                } catch (Exception e) {
-                    System.out.println("Failed to attach screenshot to report: " + e.getMessage());
+            try {
+                String screenshotPath = ScreenshotUtil.captureScreenshot(driver, result.getName());
+                if (screenshotPath != null && ExtentReportManager.getExtentTest() != null) {
+                    try {
+                        ExtentReportManager.getExtentTest().fail("Screenshot on failure")
+                            .addScreenCaptureFromPath(screenshotPath);
+                    } catch (Exception e) {
+                        System.out.println("Failed to attach screenshot to report: " + e.getMessage());
+                    }
                 }
+            } catch (Exception e) {
+                System.out.println("Failed to capture screenshot (window may be closed): " + e.getMessage());
             }
         }
 
         // Close browser
         if (driver != null) {
-            driver.quit();
+            try {
+                driver.quit();
+            } catch (Exception e) {
+                System.out.println("Failed to quit driver cleanly: " + e.getMessage());
+            }
         }
     }
 

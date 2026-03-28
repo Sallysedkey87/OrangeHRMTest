@@ -32,6 +32,10 @@ public class ConfigReader {
     }
 
     public static String getBrowser() {
+        String browserEnv = System.getenv("BROWSER");
+        if (browserEnv != null && !browserEnv.isBlank()) {
+            return browserEnv;
+        }
         return properties.getProperty("browser");
     }
 
