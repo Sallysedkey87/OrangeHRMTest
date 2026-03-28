@@ -1,6 +1,7 @@
 package com.orangehrm.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 
 /**
@@ -24,6 +25,18 @@ public class LoginPage extends BasePage {
     // Constructor
     public LoginPage(WebDriver driver) {
         super(driver);
+        boolean simulateUsernameRename = Boolean.parseBoolean(
+                System.getProperty("simulate.username.rename", "false"));
+        if (simulateUsernameRename) {
+            try {
+                waitForElementToBeVisible(By.name("username"));
+                ((JavascriptExecutor) driver).executeScript(
+                        "const u = document.querySelector('input[name=\"username\"]');" +
+                                "if (u) { u.setAttribute('name', 'username_changed_for_healing_demo'); }");
+            } catch (Exception e) {
+                System.out.println("Warning: Unable to simulate username rename: " + e.getMessage());
+            }
+        }
         // Wait for username input instead of full document readiness
         // because third-party resources can delay readyState in CI/headless.
         try {

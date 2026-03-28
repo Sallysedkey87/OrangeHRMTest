@@ -1,6 +1,7 @@
 package com.orangehrm.base;
 
 import com.aventstack.extentreports.ExtentReports;
+import com.epam.healenium.SelfHealingDriver;
 import com.orangehrm.utils.ConfigReader;
 import com.orangehrm.utils.ExtentReportManager;
 import com.orangehrm.utils.ScreenshotUtil;
@@ -34,6 +35,7 @@ public class BaseTest {
     public void setup() {
         String browser = ConfigReader.getBrowser().toLowerCase();
         boolean headless = ConfigReader.isHeadless();
+        WebDriver delegateDriver;
 
         switch (browser) {
             case "chrome":
@@ -57,7 +59,7 @@ public class BaseTest {
                 chromeOptions.addArguments("--disable-notifications");
                 chromeOptions.addArguments("--remote-allow-origins=*");
 
-                driver = new ChromeDriver(chromeOptions);
+                delegateDriver = new ChromeDriver(chromeOptions);
                 break;
 
             case "firefox":
@@ -66,7 +68,7 @@ public class BaseTest {
                 if (headless) {
                     firefoxOptions.addArguments("--headless");
                 }
-                driver = new FirefoxDriver(firefoxOptions);
+                delegateDriver = new FirefoxDriver(firefoxOptions);
                 break;
 
             case "edge":
@@ -80,17 +82,19 @@ public class BaseTest {
                 edgeOptions.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
                 try {
                     // Prefer local/runner-provided driver first (avoids network dependency in CI)
-                    driver = new EdgeDriver(edgeOptions);
+                    delegateDriver = new EdgeDriver(edgeOptions);
                 } catch (Exception e) {
                     // Fallback for local machines where driver is not preinstalled
                     WebDriverManager.edgedriver().setup();
-                    driver = new EdgeDriver(edgeOptions);
+                    delegateDriver = new EdgeDriver(edgeOptions);
                 }
                 break;
 
             default:
                 throw new IllegalArgumentException("Browser not supported: " + browser);
         }
+
+        driver = SelfHealingDriver.create(delegateDriver);
 
         // Set timeouts
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(ConfigReader.getImplicitWait()));
