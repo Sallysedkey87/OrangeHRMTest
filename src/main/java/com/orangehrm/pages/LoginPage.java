@@ -11,7 +11,7 @@ import org.openqa.selenium.WebDriver;
 public class LoginPage extends BasePage {
 
     // Locators
-    private By usernameField = By.name("username");
+    private By usernameField = By.xpath("//input[@placeholder='Username']");
     private By passwordField = By.name("password");
     private By loginButton = By.xpath("//button[@type='submit']");
     private By errorMessage = By.xpath("//p[@class='oxd-text oxd-text--p oxd-alert-content-text']");
@@ -29,10 +29,16 @@ public class LoginPage extends BasePage {
                 System.getProperty("simulate.username.rename", "false"));
         if (simulateUsernameRename) {
             try {
-                waitForElementToBeVisible(By.name("username"));
+                // Find the element first so Healenium saves it as a baseline
+                waitForElementToBeVisible(usernameField);
+                
+                // Give Healenium backend a moment to save the baseline to the database asynchronously
+                Thread.sleep(2000);
+                
+                // Break the locator in the DOM by changing the placeholder (safer than changing name attribute which breaks React state)
                 ((JavascriptExecutor) driver).executeScript(
                         "const u = document.querySelector('input[name=\"username\"]');" +
-                                "if (u) { u.setAttribute('name', 'username_changed_for_healing_demo'); }");
+                                "if (u) { u.setAttribute('placeholder', 'Username_broken_for_healing'); }");
             } catch (Exception e) {
                 System.out.println("Warning: Unable to simulate username rename: " + e.getMessage());
             }
