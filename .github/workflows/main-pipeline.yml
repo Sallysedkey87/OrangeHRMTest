@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Selenium Tests
         continue-on-error: true 
-        run: mvn clean test -X 2>&1 | head -100
+        run: mvn clean test -X
 
       - name: Generate Healenium Report
         continue-on-error: true
