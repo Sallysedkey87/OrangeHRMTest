@@ -19,7 +19,7 @@ services:
       - healenium
 
   healenium:
-    image: healenium/hlm-backend:3.5.0
+    image: healenium/hlm-backend:3.4.2
     platform: linux/amd64
     container_name: healenium
     restart: always
