@@ -119,7 +119,7 @@ public class BaseTest {
         }
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void teardown(ITestResult result) {
         // Capture screenshot on failure
         if (result.getStatus() == ITestResult.FAILURE && ConfigReader.isScreenshotOnFailure()) {
@@ -148,7 +148,7 @@ public class BaseTest {
         }
     }
 
-    @AfterSuite
+    @AfterSuite(alwaysRun = true)
     public void flushReport() {
         System.out.println("========================================");
         System.out.println("Flushing ExtentReports...");
