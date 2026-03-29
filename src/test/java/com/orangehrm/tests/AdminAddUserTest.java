@@ -48,7 +48,6 @@ public class AdminAddUserTest extends BaseTest {
         
         test.log(Status.INFO, "Verifying Add User page is displayed");
         Assert.assertTrue(addUserPage.isAddUserPageDisplayed(), "Add User page not displayed");
-        test.log(Status.PASS, "Successfully navigated to Add User page");
     }
 
     @Test(priority = 2, description = "Verify Add User with valid data")
@@ -75,8 +74,6 @@ public class AdminAddUserTest extends BaseTest {
         test.log(Status.INFO, "Verifying success message and redirection");
         Assert.assertTrue(systemUsersPage.isSuccessToastDisplayed(), "Success toast message not displayed");
         Assert.assertTrue(systemUsersPage.isSystemUsersPageDisplayed(), "Not redirected to System Users page");
-        
-        test.log(Status.PASS, "User created successfully");
     }
 
     @Test(priority = 3, description = "Verify validation for invalid employee name")
@@ -96,8 +93,6 @@ public class AdminAddUserTest extends BaseTest {
         test.log(Status.INFO, "Verifying error message");
         String error = addUserPage.getEmployeeNameError();
         Assert.assertEquals(error, "Invalid", "Employee name validation error incorrect");
-        
-        test.log(Status.PASS, "Invalid employee name validation works correctly");
     }
 
     @Test(priority = 4, description = "Verify password complexity and match validation")
@@ -120,8 +115,6 @@ public class AdminAddUserTest extends BaseTest {
         
         String confirmError = addUserPage.getConfirmPasswordError();
         Assert.assertEquals(confirmError, "Passwords do not match", "Password match error incorrect");
-        
-        test.log(Status.PASS, "Password validations work correctly");
     }
 
     @Test(priority = 5, description = "Verify Cancel action discards changes")
@@ -140,8 +133,6 @@ public class AdminAddUserTest extends BaseTest {
 
         test.log(Status.INFO, "Verifying redirection to System Users page");
         Assert.assertTrue(systemUsersPage.isSystemUsersPageDisplayed(), "Not redirected to System Users page after cancel");
-        
-        test.log(Status.PASS, "Cancel action works correctly");
     }
     
     @Test(priority = 6, description = "Verify sensitive data is masked")
@@ -154,7 +145,5 @@ public class AdminAddUserTest extends BaseTest {
 
         test.log(Status.INFO, "Verifying password field type is 'password'");
         Assert.assertTrue(addUserPage.isPasswordMasked(), "Password field is not masked");
-        
-        test.log(Status.PASS, "Password field is correctly masked");
     }
 }
