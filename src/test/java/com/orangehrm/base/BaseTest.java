@@ -95,7 +95,7 @@ public class BaseTest {
         }
 
         // Wrap driver with SelfHealingDriver only if healenium is enabled
-        boolean healEnabled = Boolean.parseBoolean(System.getProperty("heal-enabled", "true"));
+        boolean healEnabled = Boolean.parseBoolean(System.getProperty("heal-enabled", "false"));
         if (healEnabled) {
             driver = SelfHealingDriver.create(delegateDriver);
         } else {

@@ -212,7 +212,7 @@ jobs:
           BROWSER: ${{ matrix.browser }}
         run: |
           mkdir -p reports test-screenshots
-          mvn -B clean test -DsuiteXmlFile=testng.xml
+          mvn -B clean test -DsuiteXmlFile=testng.xml -Dheal-enabled=false -Dsimulate.username.rename=false
 
       - name: Upload Surefire reports
         if: always() && hashFiles('target/surefire-reports/**') != ''
