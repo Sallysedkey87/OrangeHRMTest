@@ -167,18 +167,17 @@ jobs:
             
             Status: ${{ job.status == 'success' && '🟢 PASSED' || job.status == 'cancelled' && '⚪ SKIPPED' || '🔴 FAILED' }}
             
+            View the detailed Extent Report here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts
+            (Note: GitHub Actions requires you to download the artifact to view the HTML report)
+            
             Summary of Attachments:
             1. healenium-report.zip: AI Self-Healing details (Download and extract to view).
-            2. extent-report.zip: Detailed Extent test execution report (Download and extract to view).
-            3. emailable-report.html: Standard TestNG Pass/Fail summary.
             
-            View full details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            View full pipeline details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           
-          # We attach the ZIPs and the single HTML file separately
+          # We attach only the Healenium ZIP
           attachments: |
-            healenium-report.zip,
-            extent-report.zip,
-            target/surefire-reports/emailable-report.html
+            healenium-report.zip
 
   standard-test:
     name: Standard Cross-Browser CI
