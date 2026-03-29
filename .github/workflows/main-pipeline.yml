@@ -34,11 +34,14 @@ jobs:
 
       - name: Run Selenium Tests
         continue-on-error: true 
-        run: mvn clean test -X
+        run: mvn clean test -DsuiteXmlFile=src/test/resources/testng.xml
 
       - name: Generate Healenium Report
-        continue-on-error: true
-        run: mvn hlm-report-mvn:buildReport
+        if: always()
+        run: |
+            mvn hlm-report-mvn:buildReport \
+            -Dhlm.server.url=http://localhost:7878 \
+            -Dhlm.enabled=true
 
       - name: 🔍 Debug - List ALL directories and files
         if: always()
@@ -150,7 +153,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p reports test-screenshots
-          mvn -B test
+          mvn -B clean test -DsuiteXmlFile=src/test/resources/testng.xml
 
       - name: Upload Surefire reports
         if: always() && hashFiles('target/surefire-reports/**') != ''

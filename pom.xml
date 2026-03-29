@@ -118,6 +118,7 @@
                         <id>hlmReport</id>
                         <phase>post-integration-test</phase>
                         <goals>
+                            <goal>initReport</goal>
                             <goal>buildReport</goal>
                         </goals>
                     </execution>
