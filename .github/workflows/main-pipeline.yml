@@ -117,6 +117,40 @@ jobs:
             publish_dir: ./target/hlm-report # Deploy the Healenium HTML folder
             destination_dir: reports/${{ github.run_number }} # Save each run in a new folder
 
+      - name: Zip Healenium Report
+        if: always()
+        run: |
+          # Zipping the complex Healenium folder
+          zip -r healenium-report.zip target/hlm-report
+
+      - name: Send Combined QA Report Email
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_SALLYSEDKY }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "QA Automation Summary: ${{ github.repository }} - Build #${{ github.run_number }}"
+          to: sallysedkey.fci87@gmail.com
+          from: "Automation Suite"
+          body: |
+            Hello,
+            
+            The latest execution for project '${{ github.repository }}' is complete.
+            
+            Summary of Attachments:
+            1. healenium-report.zip: AI Self-Healing details (Download and extract to view).
+            2. emailable-report.html: Standard TestNG Pass/Fail summary.
+            
+            Final Job Status: ${{ job.status }}
+            View full details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
+          # We attach the ZIP and the single HTML file separately
+          attachments: |
+            healenium-report.zip,
+            target/surefire-reports/emailable-report.html
+
   standard-test:
     name: Standard Cross-Browser CI
     needs: healenium-test
