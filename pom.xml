@@ -114,6 +114,10 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <heal-enabled>${heal-enabled}</heal-enabled>
+                        <simulate.username.rename>${simulate.username.rename}</simulate.username.rename>
+                    </systemPropertyVariables>
                 </configuration>
                 <dependencies>
                     <dependency>
