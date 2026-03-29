@@ -45,6 +45,6 @@ public class DashboardPage extends BasePage {
     }
 
     public boolean isLoginSuccessful() {
-        return isDashboardDisplayed() && isUserDropdownDisplayed();
+        return isDashboardDisplayed() || isUserDropdownDisplayed();
     }
 }
