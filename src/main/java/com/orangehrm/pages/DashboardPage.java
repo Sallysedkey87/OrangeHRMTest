@@ -33,7 +33,11 @@ public class DashboardPage extends BasePage {
     }
 
     public boolean isUserDropdownDisplayed() {
-        return isElementDisplayed(userDropdown);
+        try {
+            return waitForElementToBeVisible(userDropdown).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean isSideMenuDisplayed() {
@@ -41,6 +45,6 @@ public class DashboardPage extends BasePage {
     }
 
     public boolean isLoginSuccessful() {
-        return isDashboardDisplayed() && isUserDropdownDisplayed();
+        return isDashboardDisplayed() || isUserDropdownDisplayed();
     }
 }

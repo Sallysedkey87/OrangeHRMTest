@@ -1,6 +1,8 @@
 package com.orangehrm.base;
 
 import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
 import com.epam.healenium.SelfHealingDriver;
 import com.orangehrm.utils.ConfigReader;
 import com.orangehrm.utils.ExtentReportManager;
@@ -94,7 +96,13 @@ public class BaseTest {
                 throw new IllegalArgumentException("Browser not supported: " + browser);
         }
 
-        driver = SelfHealingDriver.create(delegateDriver);
+        // Wrap driver with SelfHealingDriver only if healenium is enabled
+        boolean healEnabled = Boolean.parseBoolean(System.getProperty("heal-enabled", "false"));
+        if (healEnabled) {
+            driver = SelfHealingDriver.create(delegateDriver);
+        } else {
+            driver = delegateDriver;
+        }
 
         // Set timeouts
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(ConfigReader.getImplicitWait()));
@@ -113,22 +121,35 @@ public class BaseTest {
         }
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void teardown(ITestResult result) {
-        // Capture screenshot on failure
-        if (result.getStatus() == ITestResult.FAILURE && ConfigReader.isScreenshotOnFailure()) {
-            try {
-                String screenshotPath = ScreenshotUtil.captureScreenshot(driver, result.getName());
-                if (screenshotPath != null && ExtentReportManager.getExtentTest() != null) {
+        ExtentTest test = ExtentReportManager.getExtentTest();
+        
+        if (test != null) {
+            if (result.getStatus() == ITestResult.FAILURE) {
+                test.log(Status.FAIL, "Test Case Failed: " + result.getName());
+                if (result.getThrowable() != null) {
+                    test.log(Status.FAIL, "Reason: " + result.getThrowable().getMessage());
+                }
+                
+                // Capture screenshot on failure
+                if (ConfigReader.isScreenshotOnFailure()) {
                     try {
-                        ExtentReportManager.getExtentTest().fail("Screenshot on failure")
-                            .addScreenCaptureFromPath(screenshotPath);
+                        String screenshotPath = ScreenshotUtil.captureScreenshot(driver, result.getName());
+                        if (screenshotPath != null) {
+                            test.addScreenCaptureFromPath(screenshotPath);
+                        }
                     } catch (Exception e) {
-                        System.out.println("Failed to attach screenshot to report: " + e.getMessage());
+                        System.out.println("Failed to capture screenshot (window may be closed): " + e.getMessage());
                     }
                 }
-            } catch (Exception e) {
-                System.out.println("Failed to capture screenshot (window may be closed): " + e.getMessage());
+            } else if (result.getStatus() == ITestResult.SKIP) {
+                test.log(Status.SKIP, "Test Case Skipped: " + result.getName());
+                if (result.getThrowable() != null) {
+                    test.log(Status.SKIP, "Reason: " + result.getThrowable().getMessage());
+                }
+            } else if (result.getStatus() == ITestResult.SUCCESS) {
+                test.log(Status.PASS, "Test Case Passed: " + result.getName());
             }
         }
 
@@ -142,7 +163,7 @@ public class BaseTest {
         }
     }
 
-    @AfterSuite
+    @AfterSuite(alwaysRun = true)
     public void flushReport() {
         System.out.println("========================================");
         System.out.println("Flushing ExtentReports...");
