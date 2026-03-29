@@ -84,9 +84,9 @@ jobs:
             echo "❌ **No Surefire Reports Generated**" >> $GITHUB_STEP_SUMMARY
           fi
           
-          if [ -d "reports" ] && [ -n "$(find reports -type f)" ]; then
+          if [ -d "target/hlm-report" ] && [ -n "$(find target/hlm-report -type f)" ]; then
             echo "✅ **Healenium Reports Found**" >> $GITHUB_STEP_SUMMARY
-            find reports -type f | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
+            find target/hlm-report -type f | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **No Healenium Reports Generated**" >> $GITHUB_STEP_SUMMARY
           fi
@@ -100,11 +100,11 @@ jobs:
           retention-days: 30
 
       - name: Upload Healenium Reports (if they exist)
-        if: always() && hashFiles('reports/**') != ''
+        if: always() && hashFiles('target/hlm-report/**') != ''
         uses: actions/upload-artifact@v4
         with:
           name: healenium-reports-${{ github.run_id }}
-          path: reports/
+          path: target/hlm-report/
           retention-days: 30
 
       - name: Deploy to GitHub Pages
