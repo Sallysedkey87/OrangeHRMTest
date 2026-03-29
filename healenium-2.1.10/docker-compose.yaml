@@ -12,6 +12,7 @@ services:
     volumes:
       - ./db/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
+      - TZ=Africa/Cairo
       - POSTGRES_DB=healenium
       - POSTGRES_USER=healenium_user
       - POSTGRES_PASSWORD=YDk2nmNs4s9aCP6K
@@ -28,6 +29,7 @@ services:
     links:
       - postgres-db
     environment:
+      - TZ=Africa/Cairo
       - SPRING_POSTGRES_DB=healenium
       - SPRING_POSTGRES_SCHEMA=healenium
       - SPRING_POSTGRES_USER=healenium_user
@@ -61,6 +63,7 @@ services:
     ports:
       - "8085:8085"
     environment:
+      - TZ=Africa/Cairo
       - RECOVERY_TRIES=1
       - SCORE_CAP=.6
       - HEAL_ENABLED=true

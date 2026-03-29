@@ -5,6 +5,7 @@
         <classes>
             <class name="com.orangehrm.tests.LoginTest"/>
             <class name="com.orangehrm.tests.AdminAddUserTest"/>
+            <class name="com.orangehrm.tests.AdminSearchTest"/>
         </classes>
     </test>
 </suite>
