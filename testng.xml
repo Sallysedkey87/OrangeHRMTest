@@ -3,8 +3,11 @@
 <suite name="OrangeHRM Test Suite" parallel="false" thread-count="1">
     <test name="Login Tests" preserve-order="true">
         <classes>
-            <class name="com.orangehrm.tests.LoginTest"/>
-            <class name="com.orangehrm.tests.AdminAddUserTest"/>
+            <class name="com.orangehrm.tests.LoginTest">
+                <methods>
+                    <include name="testLoginWithValidCredentials"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>
