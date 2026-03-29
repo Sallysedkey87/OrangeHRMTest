@@ -76,8 +76,19 @@ jobs:
       - name: Generate Test Summary
         if: always()
         run: |
-          echo "## 🔍 Debug Report" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔍 Test Execution Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "🟢 **Status: PASSED**" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ job.status }}" == "cancelled" ]; then
+            echo "⚪ **Status: CANCELLED/SKIPPED**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🔴 **Status: FAILED**" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 Artifacts" >> $GITHUB_STEP_SUMMARY
           
           if [ -d "target/surefire-reports" ] && [ -n "$(find target/surefire-reports -type f)" ]; then
             echo "✅ **Surefire Reports Found**" >> $GITHUB_STEP_SUMMARY
@@ -131,7 +142,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_SALLYSEDKY }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "QA Automation Summary: ${{ github.repository }} - Build #${{ github.run_number }}"
+          subject: "QA Automation Summary: ${{ github.repository }} - Build #${{ github.run_number }} [${{ job.status == 'success' && '🟢 PASSED' || job.status == 'cancelled' && '⚪ SKIPPED' || '🔴 FAILED' }}]"
           to: sallysedkey.fci87@gmail.com
           from: "Automation Suite"
           body: |
@@ -139,11 +150,12 @@ jobs:
             
             The latest execution for project '${{ github.repository }}' is complete.
             
+            Status: ${{ job.status == 'success' && '🟢 PASSED' || job.status == 'cancelled' && '⚪ SKIPPED' || '🔴 FAILED' }}
+            
             Summary of Attachments:
             1. healenium-report.zip: AI Self-Healing details (Download and extract to view).
             2. emailable-report.html: Standard TestNG Pass/Fail summary.
             
-            Final Job Status: ${{ job.status }}
             View full details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           
           # We attach the ZIP and the single HTML file separately
