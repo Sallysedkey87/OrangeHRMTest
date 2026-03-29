@@ -33,7 +33,6 @@ jobs:
           sleep 30 
 
       - name: Run Selenium Tests
-        continue-on-error: true 
         run: mvn clean test -DsuiteXmlFile=testng.xml
 
       - name: Generate Healenium Report
@@ -111,6 +110,7 @@ jobs:
           retention-days: 30
 
       - name: Deploy to GitHub Pages
+        if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -150,7 +150,6 @@ jobs:
         env:
           CI: "true"
           BROWSER: ${{ matrix.browser }}
-        continue-on-error: true
         run: |
           mkdir -p reports test-screenshots
           mvn -B clean test -DsuiteXmlFile=testng.xml
