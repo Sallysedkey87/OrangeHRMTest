@@ -40,7 +40,8 @@ jobs:
         run: |
             mvn hlm-report-mvn:buildReport \
             -Dhlm.server.url=http://localhost:7878 \
-            -Dhlm.enabled=true
+            -Dhlm.enabled=true \
+            -DbuildDirectory=${GITHUB_WORKSPACE}/target/hlm-report
 
       - name: 🔍 Debug - List ALL directories and files
         if: always()
