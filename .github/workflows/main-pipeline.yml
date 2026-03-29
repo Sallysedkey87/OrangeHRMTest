@@ -128,11 +128,26 @@ jobs:
             publish_dir: ./target/hlm-report # Deploy the Healenium HTML folder
             destination_dir: reports/${{ github.run_number }} # Save each run in a new folder
 
-      - name: Zip Healenium Report
+      - name: Zip Reports
         if: always()
         run: |
-          # Zipping the complex Healenium folder
-          zip -r healenium-report.zip target/hlm-report
+          # Check if the directory exists before zipping to avoid exit code 12
+          if [ -d "target/hlm-report" ]; then
+            zip -r healenium-report.zip target/hlm-report
+          else
+            echo "Healenium report directory not found, creating an empty zip to prevent failure"
+            touch empty-report.txt
+            zip healenium-report.zip empty-report.txt
+          fi
+          
+          # Zip the Extent report
+          if [ -d "reports" ] && [ -f "reports/ExtentReport.html" ]; then
+            zip -r extent-report.zip reports/ExtentReport.html
+          else
+            echo "Extent report not found, creating an empty zip to prevent failure"
+            touch empty-extent.txt
+            zip extent-report.zip empty-extent.txt
+          fi
 
       - name: Send Combined QA Report Email
         if: always()
@@ -154,13 +169,15 @@ jobs:
             
             Summary of Attachments:
             1. healenium-report.zip: AI Self-Healing details (Download and extract to view).
-            2. emailable-report.html: Standard TestNG Pass/Fail summary.
+            2. extent-report.zip: Detailed Extent test execution report (Download and extract to view).
+            3. emailable-report.html: Standard TestNG Pass/Fail summary.
             
             View full details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           
-          # We attach the ZIP and the single HTML file separately
+          # We attach the ZIPs and the single HTML file separately
           attachments: |
             healenium-report.zip,
+            extent-report.zip,
             target/surefire-reports/emailable-report.html
 
   standard-test:
@@ -213,7 +230,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: extent-report-${{ matrix.browser }}-${{ github.run_id }}
-          path: reports/ExtentReport.html
+          path: reports/
           retention-days: 30
 
       - name: Upload screenshots
