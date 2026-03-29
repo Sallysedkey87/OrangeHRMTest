@@ -36,6 +36,10 @@ jobs:
         continue-on-error: true 
         run: mvn clean test -X 2>&1 | head -100
 
+      - name: Generate Healenium Report
+        continue-on-error: true
+        run: mvn hlm-report-mvn:buildReport
+
       - name: 🔍 Debug - List ALL directories and files
         if: always()
         run: |
