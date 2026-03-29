@@ -94,7 +94,13 @@ public class BaseTest {
                 throw new IllegalArgumentException("Browser not supported: " + browser);
         }
 
-        driver = SelfHealingDriver.create(delegateDriver);
+        // Wrap driver with SelfHealingDriver only if healenium is enabled
+        boolean healEnabled = Boolean.parseBoolean(System.getProperty("heal-enabled", "true"));
+        if (healEnabled) {
+            driver = SelfHealingDriver.create(delegateDriver);
+        } else {
+            driver = delegateDriver;
+        }
 
         // Set timeouts
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(ConfigReader.getImplicitWait()));

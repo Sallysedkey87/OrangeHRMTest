@@ -33,7 +33,7 @@ jobs:
           sleep 30 
 
       - name: Run Selenium Tests
-        run: mvn clean test -DsuiteXmlFile=testng.xml
+        run: mvn clean test -DsuiteXmlFile=testng.xml -Dheal-enabled=true -Dsimulate.username.rename=true
 
       - name: Generate Healenium Report
         if: always()
@@ -167,17 +167,15 @@ jobs:
             
             Status: ${{ job.status == 'success' && '🟢 PASSED' || job.status == 'cancelled' && '⚪ SKIPPED' || '🔴 FAILED' }}
             
-            View the detailed Extent Report here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            (Note: Scroll down to the "Artifacts" section at the bottom of the page to download the Extent Report)
-            
             Summary of Attachments:
             1. healenium-report.zip: AI Self-Healing details (Download and extract to view).
+            2. extent-report.zip: Detailed Extent test execution report (Download and extract to view).
             
             View full pipeline details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           
-          # We attach only the Healenium ZIP
           attachments: |
-            healenium-report.zip
+            healenium-report.zip,
+            extent-report.zip
 
   standard-test:
     name: Standard Cross-Browser CI
