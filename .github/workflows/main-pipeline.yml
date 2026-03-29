@@ -34,91 +34,74 @@ jobs:
 
       - name: Run Selenium Tests
         continue-on-error: true 
-        run: mvn clean test
+        run: mvn clean test -X 2>&1 | head -100
 
-      - name: Generate Healenium Report
-        continue-on-error: true
-        run: mvn com.epam.healenium:hlm-report-mvn:1.1:initReport com.epam.healenium:hlm-report-mvn:1.1:buildReport
-
-      - name: List Generated Files
+      - name: 🔍 Debug - List ALL directories and files
         if: always()
         run: |
-          echo "=== Looking for all reports ==="
-          find . -type f \( -name "*.html" -o -name "index.html" \) 2>/dev/null | head -20
+          echo "==================== ENTIRE WORKSPACE ===================="
+          find . -type d -name "target" -o -type d -name "reports" -o -type d -name "test-output" 2>/dev/null | head -20
           echo ""
-          echo "=== Checking target/surefire-reports ==="
-          ls -lah target/surefire-reports/ 2>/dev/null || echo "Not found"
+          echo "==================== TARGET DIRECTORY ===================="
+          ls -lah target/ 2>/dev/null || echo "❌ target/ does NOT exist"
           echo ""
-          echo "=== Checking reports directory ==="
-          ls -lah reports/ 2>/dev/null || echo "Not found"
+          echo "==================== REPORTS DIRECTORY ===================="
+          ls -lah reports/ 2>/dev/null || echo "❌ reports/ does NOT exist"
+          echo ""
+          echo "==================== TEST-OUTPUT DIRECTORY ===================="
+          ls -lah test-output/ 2>/dev/null || echo "❌ test-output/ does NOT exist"
+          echo ""
+          echo "==================== ALL HTML FILES ===================="
+          find . -type f -name "*.html" 2>/dev/null
+          echo ""
+          echo "==================== ALL XML REPORT FILES ===================="
+          find . -type f -name "*.xml" | grep -i report 2>/dev/null || echo "❌ No XML reports found"
 
-      - name: Upload Surefire Reports
+      - name: 🔍 Debug - Check Maven Build Success
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: surefire-reports-${{ github.run_id }}
-          path: target/surefire-reports/
-          if-no-files-found: warn
-          retention-days: 30
-
-      - name: Upload Healenium Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: healenium-reports-${{ github.run_id }}
-          path: reports/
-          if-no-files-found: warn
-          retention-days: 30
+        run: |
+          if [ -d "target/surefire-reports" ]; then
+            echo "✅ Surefire reports directory EXISTS"
+            ls -lah target/surefire-reports/
+          else
+            echo "❌ Surefire reports directory MISSING"
+          fi
 
       - name: Generate Test Summary
         if: always()
         run: |
-          echo "## 📊 Test Execution Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔍 Debug Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Available Artifacts:" >> $GITHUB_STEP_SUMMARY
           
-          if [ -d "target/surefire-reports" ] && [ "$(ls -A target/surefire-reports)" ]; then
-            echo "✅ **Surefire Test Reports** - XML format" >> $GITHUB_STEP_SUMMARY
+          if [ -d "target/surefire-reports" ] && [ -n "$(find target/surefire-reports -type f)" ]; then
+            echo "✅ **Surefire Reports Found**" >> $GITHUB_STEP_SUMMARY
+            find target/surefire-reports -type f | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **No Surefire Reports Generated**" >> $GITHUB_STEP_SUMMARY
           fi
           
-          if [ -d "reports" ] && [ "$(ls -A reports)" ]; then
-            echo "✅ **Healenium Reports** - Generated" >> $GITHUB_STEP_SUMMARY
-            find reports -type f -name "*.html" -o -name "*.xml" | sed 's/^/  - /' >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
+          if [ -d "reports" ] && [ -n "$(find reports -type f)" ]; then
+            echo "✅ **Healenium Reports Found**" >> $GITHUB_STEP_SUMMARY
+            find reports -type f | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **No Healenium Reports Generated**" >> $GITHUB_STEP_SUMMARY
           fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📦 [Download from Actions Artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
 
-      - name: Send Summary Email
-        if: always()
-        uses: dawidd6/action-send-mail@v3
+      - name: Upload Surefire Reports (if they exist)
+        if: always() && hashFiles('target/surefire-reports/**') != ''
+        uses: actions/upload-artifact@v4
         with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.MAIL_SALLYSEDKY }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Test Execution Report - ${{ job.status }}"
-          to: sallysedkey.fci87@gmail.com
-          from: GitHub Actions
-          body: |
-            📋 Test Execution Summary
-            ========================
-            
-            Status: ${{ job.status }}
-            Repository: ${{ github.repository }}
-            Branch: ${{ github.ref }}
-            Commit: ${{ github.sha }}
-            
-            🔗 View Full Report & Artifacts:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            
-            📦 All test reports and artifacts are available in GitHub Actions.
-            Download them from the Artifacts section in the workflow run above.
-            
-            ✨ Test reports generated:
-            - Surefire XML Reports (target/surefire-reports/)
-            - Healenium Reports (reports/)
+          name: surefire-reports-${{ github.run_id }}
+          path: target/surefire-reports/
+          retention-days: 30
+
+      - name: Upload Healenium Reports (if they exist)
+        if: always() && hashFiles('reports/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: healenium-reports-${{ github.run_id }}
+          path: reports/
+          retention-days: 30
 
   standard-test:
     name: Standard Cross-Browser CI
