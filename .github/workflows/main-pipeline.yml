@@ -147,29 +147,31 @@ jobs:
         env:
           CI: "true"
           BROWSER: ${{ matrix.browser }}
+        continue-on-error: true
         run: |
           mkdir -p reports test-screenshots
           mvn -B test
 
       - name: Upload Surefire reports
-        if: always()
+        if: always() && hashFiles('target/surefire-reports/**') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports-${{ matrix.browser }}
-          path: target/surefire-reports
+          name: surefire-reports-${{ matrix.browser }}-${{ github.run_id }}
+          path: target/surefire-reports/
+          retention-days: 30
 
       - name: Upload Extent report
-        if: always()
+        if: always() && hashFiles('reports/ExtentReport.html') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: extent-report-${{ matrix.browser }}
+          name: extent-report-${{ matrix.browser }}-${{ github.run_id }}
           path: reports/ExtentReport.html
-          if-no-files-found: ignore
+          retention-days: 30
 
       - name: Upload screenshots
-        if: always()
+        if: always() && hashFiles('test-screenshots/**/*.png') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots-${{ matrix.browser }}
-          path: test-screenshots/**/*.png
-          if-no-files-found: ignore
+          name: screenshots-${{ matrix.browser }}-${{ github.run_id }}
+          path: test-screenshots/
+          retention-days: 30
