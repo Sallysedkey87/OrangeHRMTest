@@ -18,6 +18,8 @@
         <webdrivermanager.version>5.7.0</webdrivermanager.version>
         <extentreports.version>5.0.9</extentreports.version>
         <apache.poi.version>5.2.5</apache.poi.version>
+        <heal-enabled>false</heal-enabled>
+        <simulate.username.rename>false</simulate.username.rename>
     </properties>
 
     <dependencies>
