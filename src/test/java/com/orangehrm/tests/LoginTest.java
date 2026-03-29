@@ -48,7 +48,7 @@ public class LoginTest extends BaseTest {
             Assert.assertTrue(dashboardPage.isLoginSuccessful(), "Login was not successful - Dashboard not displayed");
 
             test.log(Status.PASS, "Login successful with valid credentials");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -77,7 +77,7 @@ public class LoginTest extends BaseTest {
             Assert.assertTrue(errorMsg.contains("Invalid credentials"), "Error message text is incorrect");
 
             test.log(Status.PASS, "Error message displayed correctly for invalid username");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -106,7 +106,7 @@ public class LoginTest extends BaseTest {
             Assert.assertTrue(errorMsg.contains("Invalid credentials"), "Error message text is incorrect");
 
             test.log(Status.PASS, "Error message displayed correctly for invalid password");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -126,7 +126,7 @@ public class LoginTest extends BaseTest {
             Assert.assertTrue(loginPage.isRequiredFieldMessageDisplayed(), "Required field message is not displayed");
 
             test.log(Status.PASS, "Required field validation working correctly");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -149,7 +149,7 @@ public class LoginTest extends BaseTest {
             Assert.assertTrue(loginPage.isRequiredFieldMessageDisplayed(), "Username required error is not displayed");
 
             test.log(Status.PASS, "Username required validation working correctly");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -172,7 +172,7 @@ public class LoginTest extends BaseTest {
             Assert.assertTrue(loginPage.isRequiredFieldMessageDisplayed(), "Password required error is not displayed");
 
             test.log(Status.PASS, "Password required validation working correctly");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -197,7 +197,7 @@ public class LoginTest extends BaseTest {
             Assert.assertTrue(loginPage.isErrorMessageDisplayed(), "Error message is not displayed");
 
             test.log(Status.PASS, "System correctly rejects special characters in username");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -222,7 +222,7 @@ public class LoginTest extends BaseTest {
             Assert.assertFalse(dashboardPage.isLoginSuccessful(), "Security vulnerability: SQL injection succeeded");
 
             test.log(Status.PASS, "System is protected against SQL injection");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -248,7 +248,7 @@ public class LoginTest extends BaseTest {
                     "Lowercase username was not accepted");
 
             test.log(Status.PASS, "Username matching is case-insensitive as expected");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
@@ -264,7 +264,7 @@ public class LoginTest extends BaseTest {
             Assert.assertTrue(loginPage.isForgotPasswordLinkDisplayed(), "Forgot password link is not displayed");
 
             test.log(Status.PASS, "Forgot password link is present on login page");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             test.log(Status.FAIL, "Test failed: " + e.getMessage());
             throw e;
         }
