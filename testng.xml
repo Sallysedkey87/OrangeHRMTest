@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="OrangeHRM Test Suite" parallel="false" thread-count="1">
-    <test name="Login Tests" preserve-order="true">
+    <test name="Admin Search Tests" preserve-order="true">
         <classes>
-            <class name="com.orangehrm.tests.LoginTest">
-                <methods>
-                    <include name="testLoginWithValidCredentials"/>
-                </methods>
-            </class>
+            <class name="com.orangehrm.tests.AdminSearchTest"/>
         </classes>
     </test>
 </suite>
