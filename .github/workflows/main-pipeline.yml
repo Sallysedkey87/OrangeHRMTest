@@ -30,43 +30,66 @@ jobs:
         run: |
           cd healenium-2.1.10
           docker compose up -d
-          # Wait for Postgres and Backend to be healthy
           sleep 30 
 
       - name: Run Selenium Tests
-        # Adding 'continue-on-error' so the report generates even if tests fail
         continue-on-error: true 
         run: mvn clean test
 
       - name: Generate Healenium Report
-        # This triggers the plugin we added to the pom.xml
+        continue-on-error: true
         run: mvn com.epam.healenium:hlm-report-mvn:1.1:initReport com.epam.healenium:hlm-report-mvn:1.1:buildReport
 
-      - name: Verify Reports Exist
+      - name: List Generated Files
+        if: always()
         run: |
-          echo "Checking for report files..."
-          find . -name "ExtentReport.html" -o -name "index.html" 2>/dev/null | head -20
-          ls -la target/surefire-reports/ 2>/dev/null || echo "No surefire reports"
-          ls -la reports/ 2>/dev/null || echo "No reports folder"
+          echo "=== Search for all HTML reports ==="
+          find . -type f \( -name "*.html" -o -name "index.html" -o -name "report.html" \) 2>/dev/null
+          echo ""
+          echo "=== Target directory contents ==="
+          ls -lah target/ 2>/dev/null || echo "target/ not found"
+          echo ""
+          echo "=== Surefire reports ==="
+          ls -lah target/surefire-reports/ 2>/dev/null || echo "No surefire-reports"
+          echo ""
+          echo "=== Reports directory ==="
+          ls -lah reports/ 2>/dev/null || echo "No reports directory"
 
-      - name: Upload Artifacts
+      - name: Upload Test Artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qa-test-reports
+          name: test-reports-${{ github.run_id }}
           path: |
             target/surefire-reports/
             reports/
-            test-screenshots/
+            healenium-2.1.10/
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Zip Healenium Report
+      - name: Generate Test Report Summary
         if: always()
         run: |
-          # Zipping the complex Healenium folder
-          zip -r healenium-report.zip reports/healenium
+          echo "## ✅ Test Execution Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+          
+          # Count test results if available
+          if [ -d "target/surefire-reports" ]; then
+            TEST_COUNT=$(find target/surefire-reports -name "*.xml" | wc -l)
+            echo "- **Test XML Reports Generated:** $TEST_COUNT" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -d "reports" ]; then
+            echo "- **Healenium Reports:** ✅ Generated" >> $GITHUB_STEP_SUMMARY
+            find reports -type f | sed 's/^/  - /' >> $GITHUB_STEP_SUMMARY || true
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Download Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "[Click here to view all test reports and artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
 
-      - name: Send Combined QA Report Email
+      - name: Send Test Report Email
         if: always()
         uses: dawidd6/action-send-mail@v3
         with:
@@ -75,24 +98,24 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_SALLYSEDKY }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          
-          subject: "QA Automation Summary: ${{ github.repository }} - Build #${{ github.run_number }}"
+          subject: "Test Execution Complete - ${{ job.status }}"
           to: sallysedkey.fci87@gmail.com
-          from: "Automation Suite"
+          from: GitHub Actions
           body: |
-            Hello,
+            Test Execution Summary
+            =====================
+            Status: ${{ job.status }}
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            Commit SHA: ${{ github.sha }}
             
-            The latest execution for project '${{ github.repository }}' is complete.
+            Test Artifacts:
+            - Surefire Test Results (XML format)
+            - Healenium Reports (if generated)
             
-            Summary of Attachments:
-            1. healenium-report.zip: AI Self-Healing details (Download and extract to view).
-            2. ExtentReport.html: Standard TestNG Pass/Fail summary.
-            
-            Final Job Status: ${{ job.status }}
-            View full details here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          
-          # We attach the ZIP and the single HTML file separately
-          attachments: healenium-report.zip,reports/ExtentReport.html
+            View full details and artifacts:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          attachments: reports/
 
   standard-test:
     name: Standard Cross-Browser CI
