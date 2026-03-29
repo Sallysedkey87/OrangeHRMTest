@@ -167,8 +167,8 @@ jobs:
             
             Status: ${{ job.status == 'success' && '🟢 PASSED' || job.status == 'cancelled' && '⚪ SKIPPED' || '🔴 FAILED' }}
             
-            View the detailed Extent Report here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts
-            (Note: GitHub Actions requires you to download the artifact to view the HTML report)
+            View the detailed Extent Report here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            (Note: Scroll down to the "Artifacts" section at the bottom of the page to download the Extent Report)
             
             Summary of Attachments:
             1. healenium-report.zip: AI Self-Healing details (Download and extract to view).
@@ -225,7 +225,7 @@ jobs:
           retention-days: 30
 
       - name: Upload Extent report
-        if: always() && hashFiles('reports/ExtentReport.html') != ''
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: extent-report-${{ matrix.browser }}-${{ github.run_id }}
